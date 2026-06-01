@@ -8,36 +8,7 @@
 #include <chrono>
 #include <ctime>
 #include <map> // Ensure this is at the top of your file!
-#include <sqlite3.h>
 
-// Connects to DB and executes queries
-sqlite3* db;
-void initDB() {
-    sqlite3_open("marks.db", &db);
-    string sql = "CREATE TABLE IF NOT EXISTS students("
-                 "cls INT, roll INT, name TEXT, bengali TEXT, english TEXT, maths TEXT, total INT, rank INT);";
-    sqlite3_exec(db, sql.c_str(), NULL, 0, NULL);
-}
-
-// Example: Retrieve students for a specific class
-vector<Student> getStudentsByClass(int cls) {
-    vector<Student> students;
-    sqlite3_stmt* stmt;
-    string sql = "SELECT * FROM students WHERE cls = ?;";
-    sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL);
-    sqlite3_bind_int(stmt, 1, cls);
-
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        students.push_back({
-            sqlite3_column_int(stmt, 0), sqlite3_column_int(stmt, 1), 
-            (const char*)sqlite3_column_text(stmt, 2),
-            (const char*)sqlite3_column_text(stmt, 3), (const char*)sqlite3_column_text(stmt, 4),
-            (const char*)sqlite3_column_text(stmt, 5), sqlite3_column_int(stmt, 6), sqlite3_column_int(stmt, 7)
-        });
-    }
-    sqlite3_finalize(stmt);
-    return students;
-}
 using namespace std;
 
 struct Student {
@@ -51,7 +22,7 @@ vector<Student> readDatabase() {
     ifstream file("central-database.csv");
     if (!file.is_open()) return students;
 
-    string line;
+    string line; 
     // Skip the header line
     getline(file, line);
 
